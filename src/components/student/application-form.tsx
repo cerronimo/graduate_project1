@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { mockStudent } from "@/lib/mock/student";
+import { departments, departmentName } from "@/lib/config/departments";
 
 type Field = {
   key: string;
@@ -9,6 +10,7 @@ type Field = {
   type?: string;
   required?: boolean;
   full?: boolean;
+  options?: { value: string; label: string }[];
 };
 
 const studentFields: Field[] = [
@@ -16,7 +18,15 @@ const studentFields: Field[] = [
   { key: "idNo", label: "TC / KKTC Kimlik No", required: true },
   { key: "studentNo", label: "Öğrenci No", required: true },
   { key: "academicYear", label: "Öğretim Yılı (örn. 2026-2027)", required: true },
-  { key: "department", label: "Program / Bölüm", required: true },
+  {
+    key: "department",
+    label: "Program / Bölüm",
+    required: true,
+    options: departments.map((d) => ({
+      value: d.code,
+      label: `${d.nameTr} (${d.code})`,
+    })),
+  },
   { key: "faculty", label: "Fakülte", required: true },
   { key: "email", label: "E-posta", type: "email", required: true },
   { key: "phone", label: "Telefon (GSM)", type: "tel", required: true },
@@ -67,7 +77,8 @@ export default function ApplicationForm() {
   const [values, setValues] = useState<Record<string, string>>({
     fullName: mockStudent.name,
     studentNo: mockStudent.studentNo,
-    department: mockStudent.department,
+    department: mockStudent.departmentCode,
+    faculty: "Mühendislik Fakültesi",
   });
   const [areas, setAreas] = useState<string[]>([]);
   const [otherArea, setOtherArea] = useState("");
@@ -139,12 +150,27 @@ export default function ApplicationForm() {
               {f.label}
               {f.required && <span className="text-red-600"> *</span>}
             </span>
-            <input
-              type={f.type ?? "text"}
-              value={values[f.key] ?? ""}
-              onChange={(e) => setValue(f.key, e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-blue-600 focus:outline-none"
-            />
+            {f.options ? (
+              <select
+                value={values[f.key] ?? ""}
+                onChange={(e) => setValue(f.key, e.target.value)}
+                className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-600 focus:outline-none"
+              >
+                <option value="">Seçiniz</option>
+                {f.options.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type={f.type ?? "text"}
+                value={values[f.key] ?? ""}
+                onChange={(e) => setValue(f.key, e.target.value)}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-blue-600 focus:outline-none"
+              />
+            )}
           </label>
         ))}
       </div>
@@ -242,7 +268,9 @@ export default function ApplicationForm() {
                 <div key={f.key} className={f.full ? "md:col-span-2" : ""}>
                   <dt className="text-xs text-gray-500">{f.label}</dt>
                   <dd className="text-sm font-medium">
-                    {values[f.key]?.trim() || "—"}
+                    {f.key === "department"
+                      ? departmentName(values[f.key] ?? "") || "—"
+                      : values[f.key]?.trim() || "—"}
                   </dd>
                 </div>
               ))}

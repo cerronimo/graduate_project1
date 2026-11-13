@@ -1,9 +1,14 @@
 export const mockStudent = {
   name: "Örnek Öğrenci",
   studentNo: "21000000",
-  department: "Bilgisayar Mühendisliği",
+  department: "Yazılım Mühendisliği",
+  departmentCode: "CMSE",
+  isTurkishCitizen: true,
 };
 
+export const mockInternship = {
+  workingDays: 30,
+};
 export const applicationStages = [
   { key: "application", label: "Başvuru", state: "done" },
   { key: "advisor", label: "Advisor Onayı", state: "done" },
