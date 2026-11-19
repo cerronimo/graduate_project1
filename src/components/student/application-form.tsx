@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { mockStudent } from "@/lib/mock/student";
 import { departments, departmentName } from "@/lib/config/departments";
+import { useStudentLanguage } from "@/app/student/language-context";
+import { studentText } from "@/lib/student-translations";
 
 type Field = {
   key: string;
@@ -73,6 +75,16 @@ const steps = [
 const allFields = [...studentFields, ...companyFields];
 
 export default function ApplicationForm() {
+  const language = useStudentLanguage();
+  const t = (text: string) => studentText(language, text);
+  const localizedFields = (fields: Field[]) => fields.map((field) => ({
+    ...field,
+    label: t(field.label),
+    options: field.key === "department" ? departments.map((department) => ({
+      value: department.code,
+      label: `${language === "tr" ? department.nameTr : department.nameEn} (${department.code})`,
+    })) : field.options,
+  }));
   const [step, setStep] = useState(0);
   const [values, setValues] = useState<Record<string, string>>({
     fullName: mockStudent.name,
@@ -147,7 +159,7 @@ export default function ApplicationForm() {
         {fields.map((f) => (
           <label key={f.key} className={`block ${f.full ? "md:col-span-2" : ""}`}>
             <span className="mb-1 block text-sm font-medium text-gray-700">
-              {f.label}
+              {t(f.label)}
               {f.required && <span className="text-red-600"> *</span>}
             </span>
             {f.options ? (
@@ -156,8 +168,8 @@ export default function ApplicationForm() {
                 onChange={(e) => setValue(f.key, e.target.value)}
                 className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-600 focus:outline-none"
               >
-                <option value="">Seçiniz</option>
-                {f.options.map((o) => (
+                <option value="">{t("Seçiniz")}</option>
+                {(f.key === "department" ? localizedFields([f])[0].options ?? [] : f.options).map((o) => (
                   <option key={o.value} value={o.value}>
                     {o.label}
                   </option>
@@ -166,7 +178,7 @@ export default function ApplicationForm() {
             ) : (
               <input
                 type={f.type ?? "text"}
-                value={values[f.key] ?? ""}
+                value={f.key === "faculty" && values[f.key] === "Mühendislik Fakültesi" ? t(values[f.key]) : values[f.key] ?? ""}
                 onChange={(e) => setValue(f.key, e.target.value)}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-blue-600 focus:outline-none"
               />
@@ -181,11 +193,10 @@ export default function ApplicationForm() {
     return (
       <div className="rounded-lg border border-green-200 bg-green-50 p-8">
         <h2 className="text-lg font-semibold text-green-800">
-          Başvurun alındı
+          {t("Başvurun alındı")}
         </h2>
         <p className="mt-2 text-sm text-green-700">
-          Başvurun advisor onayına gönderildi. Durumunu &quot;Başvuru
-          Durumu&quot; sayfasından takip edebilirsin.
+          {t('Başvurun advisor onayına gönderildi. Durumunu "Başvuru Durumu" sayfasından takip edebilirsin.')}
         </p>
       </div>
     );
@@ -205,7 +216,7 @@ export default function ApplicationForm() {
                 : "bg-gray-200 text-gray-600"
             }`}
           >
-            {i + 1}. {label}
+              {i + 1}. {t(label)}
           </li>
         ))}
       </ol>
@@ -213,7 +224,7 @@ export default function ApplicationForm() {
       <div className="rounded-lg border border-gray-200 bg-white p-6">
         {step === 0 && (
           <>
-            <h2 className="mb-4 font-semibold">Kişisel ve akademik bilgiler</h2>
+            <h2 className="mb-4 font-semibold">{t("Kişisel ve akademik bilgiler")}</h2>
             {renderFields(studentFields)}
           </>
         )}
@@ -221,7 +232,7 @@ export default function ApplicationForm() {
         {step === 1 && (
           <>
             <h2 className="mb-4 font-semibold">
-              Staj yapılacak yer ve yetkili bilgileri
+              {t("Staj yapılacak yer ve yetkili bilgileri")}
             </h2>
             {renderFields(companyFields)}
           </>
@@ -229,9 +240,9 @@ export default function ApplicationForm() {
 
         {step === 2 && (
           <>
-            <h2 className="mb-1 font-semibold">Öğrencinin yapacağı işler</h2>
+            <h2 className="mb-1 font-semibold">{t("Öğrencinin yapacağı işler")}</h2>
             <p className="mb-4 text-sm text-gray-500">
-              Uygun olanların hepsini işaretle.
+              {t("Uygun olanların hepsini işaretle.")}
             </p>
             <div className="space-y-2">
               {workAreas.map((area) => (
@@ -242,13 +253,13 @@ export default function ApplicationForm() {
                     onChange={() => toggleArea(area)}
                     className="mt-0.5"
                   />
-                  <span>{area}</span>
+                  <span>{t(area)}</span>
                 </label>
               ))}
             </div>
             <label className="mt-4 block">
               <span className="mb-1 block text-sm font-medium text-gray-700">
-                Diğer (bölüm onayı gerekir)
+                {t("Diğer (bölüm onayı gerekir)")}
               </span>
               <input
                 type="text"
@@ -262,22 +273,22 @@ export default function ApplicationForm() {
 
         {step === 3 && (
           <>
-            <h2 className="mb-4 font-semibold">Özet</h2>
+            <h2 className="mb-4 font-semibold">{t("Özet")}</h2>
             <dl className="grid gap-x-6 gap-y-3 md:grid-cols-2">
               {allFields.map((f) => (
                 <div key={f.key} className={f.full ? "md:col-span-2" : ""}>
-                  <dt className="text-xs text-gray-500">{f.label}</dt>
+                  <dt className="text-xs text-gray-500">{t(f.label)}</dt>
                   <dd className="text-sm font-medium">
                     {f.key === "department"
-                      ? departmentName(values[f.key] ?? "") || "—"
-                      : values[f.key]?.trim() || "—"}
+                      ? language === "tr" ? departmentName(values[f.key] ?? "") || "—" : departments.find((department) => department.code === values[f.key])?.nameEn ?? "—"
+                      : f.key === "faculty" ? t(values[f.key]?.trim() || "—") : values[f.key]?.trim() || "—"}
                   </dd>
                 </div>
               ))}
               <div className="md:col-span-2">
-                <dt className="text-xs text-gray-500">Çalışma alanları</dt>
+                <dt className="text-xs text-gray-500">{t("Çalışma alanları")}</dt>
                 <dd className="text-sm font-medium">
-                  {[...areas, otherArea.trim() && `Diğer: ${otherArea.trim()}`]
+                  {[...areas.map(t), otherArea.trim() && `${t("Diğer")}: ${otherArea.trim()}`]
                     .filter(Boolean)
                     .join(", ")}
                 </dd>
@@ -290,12 +301,12 @@ export default function ApplicationForm() {
                 onChange={(e) => setConfirmed(e.target.checked)}
                 className="mt-0.5"
               />
-              <span>Yukarıdaki bilgilerin doğru olduğunu beyan ederim.</span>
+              <span>{t("Yukarıdaki bilgilerin doğru olduğunu beyan ederim.")}</span>
             </label>
           </>
         )}
 
-        {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+        {error && <p className="mt-4 text-sm text-red-600">{language === "en" && error.startsWith("Lütfen zorunlu alanları doldurun: ") ? `${t("Lütfen zorunlu alanları doldurun")}: ${error.slice("Lütfen zorunlu alanları doldurun: ".length).split(", ").map(t).join(", ")}` : t(error)}</p>}
       </div>
 
       <div className="flex justify-between">
@@ -305,7 +316,7 @@ export default function ApplicationForm() {
           disabled={step === 0}
           className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium disabled:opacity-40"
         >
-          Geri
+          {t("Geri")}
         </button>
         {step < steps.length - 1 ? (
           <button
@@ -313,7 +324,7 @@ export default function ApplicationForm() {
             onClick={next}
             className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
           >
-            İleri
+            {t("İleri")}
           </button>
         ) : (
           <button
@@ -321,7 +332,7 @@ export default function ApplicationForm() {
             onClick={submit}
             className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
           >
-            Başvuruyu Gönder
+            {t("Başvuruyu Gönder")}
           </button>
         )}
       </div>

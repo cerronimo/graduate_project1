@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useStudentLanguage } from "@/app/student/language-context";
+import { studentText } from "@/lib/student-translations";
 
 const links = [
   { href: "/student/dashboard", label: "Dashboard" },
@@ -15,6 +17,7 @@ const links = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const language = useStudentLanguage();
 
   return (
     <nav className="flex flex-col gap-1 p-4">
@@ -30,7 +33,7 @@ export default function Sidebar() {
                 : "text-gray-700 hover:bg-gray-100"
             }`}
           >
-            {link.label}
+            {studentText(language, link.label)}
           </Link>
         );
       })}

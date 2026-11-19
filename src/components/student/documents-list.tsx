@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { mockStudent, mockInternship } from "@/lib/mock/student";
+import { useStudentLanguage } from "@/app/student/language-context";
+import { studentText } from "@/lib/student-translations";
 import {
   trainingConfig,
   acceptanceTemplates,
@@ -74,6 +76,8 @@ const ACCEPTED = ".pdf,.jpg,.jpeg,.png";
 type Uploaded = { name: string; sizeKb: number; date: string };
 
 export default function DocumentsList() {
+  const language = useStudentLanguage();
+  const t = (text: string) => studentText(language, text);
   const [files, setFiles] = useState<Record<string, Uploaded>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -95,7 +99,7 @@ export default function DocumentsList() {
       [key]: {
         name: file.name,
         sizeKb: Math.round(file.size / 1024),
-        date: new Date().toLocaleDateString("tr-TR"),
+        date: new Date().toISOString(),
       },
     }));
   }
@@ -115,11 +119,11 @@ export default function DocumentsList() {
     <div className="space-y-4">
       <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
         <p>
-          Zorunlu belgeler: <strong>{requiredDone} / {requiredTotal}</strong>{" "}
-          yüklendi. Son teslim: {trainingConfig.submissionDeadline}.
+          {t("Zorunlu belgeler")}: <strong>{requiredDone} / {requiredTotal}</strong>{" "}
+          {t("yüklendi. Son teslim")}: {t(trainingConfig.submissionDeadline)}.
         </p>
         <p className="mt-1 text-blue-800">
-          Kabul edilen türler: PDF, JPG, PNG (en fazla {MAX_SIZE_MB} MB).
+          {t("Kabul edilen türler")}: PDF, JPG, PNG ({t("en fazla")} {MAX_SIZE_MB} MB).
         </p>
       </div>
 
@@ -133,10 +137,10 @@ export default function DocumentsList() {
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="max-w-xl">
                 <p className="font-semibold">
-                  {doc.title}
+                  {doc.key === "bank-receipt" ? `${language === "tr" ? "Banka Dekontu" : "Bank Receipt"} (${trainingConfig.bankName})` : t(doc.title)}
                   {doc.required && <span className="text-red-600"> *</span>}
                 </p>
-                <p className="mt-1 text-sm text-gray-500">{doc.description}</p>
+                <p className="mt-1 text-sm text-gray-500">{doc.key === "acceptance" ? language === "tr" ? doc.description : `Download the form for the ${mockStudent.departmentCode} department, have the company complete, sign and stamp it, then upload a scan.` : doc.key === "bank-receipt" ? language === "tr" ? doc.description : `Pay ${trainingConfig.dailyFeeTL} TL per working day (effective from ${trainingConfig.feeEffectiveFrom}). Total for ${mockInternship.workingDays} working days: ${total.toLocaleString("en-US")} TL.` : t(doc.description)}</p>
               </div>
               <span
                 className={`rounded-full px-3 py-1 text-xs font-medium ${
@@ -145,7 +149,7 @@ export default function DocumentsList() {
                     : "bg-gray-200 text-gray-600"
                 }`}
               >
-                {uploaded ? "Doğrulama bekliyor" : "Yüklenmedi"}
+                {uploaded ? t("Doğrulama bekliyor") : t("Yüklenmedi")}
               </span>
             </div>
 
@@ -157,11 +161,11 @@ export default function DocumentsList() {
                     download
                     className="font-medium text-blue-600 hover:underline"
                   >
-                    Boş formu indir
+                    {t("Boş formu indir")}
                   </a>
                 ) : (
                   <span className="text-gray-500">
-                    Bu bölüm için form şablonu henüz eklenmedi.
+                    {t("Bu bölüm için form şablonu henüz eklenmedi.")}
                   </span>
                 )}
               </p>
@@ -172,7 +176,7 @@ export default function DocumentsList() {
                 <span>
                   {uploaded.name}{" "}
                   <span className="text-gray-500">
-                    · {uploaded.sizeKb} KB · {uploaded.date}
+                    · {uploaded.sizeKb} KB · {new Date(uploaded.date).toLocaleDateString(language === "tr" ? "tr-TR" : "en-US")}
                   </span>
                 </span>
                 <button
@@ -180,13 +184,13 @@ export default function DocumentsList() {
                   onClick={() => remove(doc.key)}
                   className="text-red-600 hover:underline"
                 >
-                  Kaldır
+                  {t("Kaldır")}
                 </button>
               </div>
             )}
 
             <label className="mt-3 inline-block cursor-pointer rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
-              {uploaded ? "Dosyayı değiştir" : "Dosya seç"}
+              {uploaded ? t("Dosyayı değiştir") : t("Dosya seç")}
               <input
                 type="file"
                 accept={ACCEPTED}
@@ -196,7 +200,7 @@ export default function DocumentsList() {
             </label>
 
             {errors[doc.key] && (
-              <p className="mt-2 text-sm text-red-600">{errors[doc.key]}</p>
+              <p className="mt-2 text-sm text-red-600">{language === "tr" ? errors[doc.key] : `${t("Dosya")} ${t("büyük olamaz.")} ${MAX_SIZE_MB} MB.`}</p>
             )}
           </div>
         );
