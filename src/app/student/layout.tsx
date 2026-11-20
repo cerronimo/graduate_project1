@@ -15,7 +15,7 @@ export default function StudentLayout({
 
   return (
     <StudentLanguageContext.Provider value={language}>
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 text-gray-900">
       <aside className="w-60 shrink-0 border-r border-gray-200 bg-white">
         <div className="border-b border-gray-200 px-6 py-5">
           <p className="text-lg font-bold">STAMS</p>
