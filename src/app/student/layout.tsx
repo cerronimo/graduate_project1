@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import Sidebar from "@/components/student/sidebar";
 import { mockStudent } from "@/lib/mock/student";
@@ -17,9 +18,12 @@ export default function StudentLayout({
     <StudentLanguageContext.Provider value={language}>
     <div className="flex min-h-screen bg-gray-50 text-gray-900">
       <aside className="w-60 shrink-0 border-r border-gray-200 bg-white">
-        <div className="border-b border-gray-200 px-6 py-5">
-          <p className="text-lg font-bold">STAMS</p>
-          <p className="text-xs text-gray-500">{language === "tr" ? "Öğrenci Paneli" : "Student Portal"}</p>
+        <div className="flex items-center gap-3 border-b border-gray-200 px-6 py-5">
+          <Image src="/emu-logo.png" alt="EMU" width={52} height={52} className="h-13 w-13 shrink-0 rounded-full" priority />
+          <div>
+            <p className="text-2xl font-bold tracking-wide">STAMS</p>
+            <p className="text-xs text-gray-500">{language === "tr" ? "Öğrenci Paneli" : "Student Portal"}</p>
+          </div>
         </div>
         <Sidebar />
       </aside>
