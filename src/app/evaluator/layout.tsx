@@ -11,29 +11,31 @@ export default function EvaluatorLayout({
   children: React.ReactNode;
 }) {
   const [language, setLanguage] = useState<EvaluatorLanguage>("tr");
+  const upcomingPages = language === "tr"
+    ? ["Rapor ve Günlük İnceleme", "Değerlendirme", "Notlandırma", "Geri Bildirim"]
+    : ["Reports and Logbooks", "Evaluation", "Grading", "Feedback"];
 
   return (
     <EvaluatorLanguageContext.Provider value={language}>
       <div className="min-h-screen bg-white p-0 text-[#17213a] lg:p-4">
-        <div className="min-h-screen overflow-hidden bg-[#212f6b] lg:flex lg:min-h-[calc(100vh-2rem)] lg:rounded-[20px]">
-          <aside className="shrink-0 px-5 py-6 text-white lg:w-64 lg:px-6 lg:py-9 xl:w-72">
-            <div className="flex items-center gap-3 px-2 lg:mb-12">
-              <Image src="/emu-logo.png" alt="EMU" width={52} height={52} className="h-13 w-13 rounded-full bg-white" priority />
+        <div className="min-h-screen overflow-hidden bg-white lg:flex lg:min-h-[calc(100vh-2rem)] lg:rounded-[20px]">
+          <aside className="shrink-0 border-r border-gray-200 bg-white text-gray-900 lg:w-64 xl:w-72">
+            <div className="flex items-center gap-3 border-b border-gray-200 px-6 py-5">
+              <Image src="/emu-logo.png" alt="EMU" width={52} height={52} className="h-13 w-13 shrink-0 rounded-full" priority />
               <div>
                 <p className="text-2xl font-bold tracking-wide">STAMS</p>
-                <p className="text-xs text-[#cbd4ed]">{language === "tr" ? "Değerlendirici Paneli" : "Evaluator Portal"}</p>
+                <p className="text-xs text-gray-500">{language === "tr" ? "Değerlendirici Paneli" : "Evaluator Portal"}</p>
               </div>
             </div>
-            <nav aria-label={language === "tr" ? "Değerlendirici menüsü" : "Evaluator navigation"} className="mt-6 lg:mt-0">
-              <Link href="/evaluator/assigned" aria-current="page" className="flex items-center gap-3 rounded-xl bg-[#f2f3f6] px-4 py-3.5 font-semibold text-[#212f6b]">
-                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
-                  <rect x="3" y="4" width="7" height="7" rx="1" />
-                  <rect x="14" y="4" width="7" height="7" rx="1" />
-                  <rect x="3" y="15" width="7" height="6" rx="1" />
-                  <rect x="14" y="15" width="7" height="6" rx="1" />
-                </svg>
+            <nav aria-label={language === "tr" ? "Değerlendirici menüsü" : "Evaluator navigation"} className="flex flex-col gap-1 p-4">
+              <Link href="/evaluator/assigned" aria-current="page" className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white">
                 {language === "tr" ? "Atanan Başvurular" : "Assigned Submissions"}
               </Link>
+              {upcomingPages.map((page) => (
+                <span key={page} aria-disabled="true" className="rounded-md px-3 py-2 text-sm font-medium text-gray-700">
+                  {page}
+                </span>
+              ))}
             </nav>
           </aside>
 
